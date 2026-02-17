@@ -8,8 +8,10 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-COPY vite.config.js ./
-COPY resources ./resources
+# Copy all source files so Tailwind v4 can scan @source paths
+# (blade views, vendor pagination views, JS files, etc.)
+COPY . .
+
 RUN npm run build
 
 # ============================================
