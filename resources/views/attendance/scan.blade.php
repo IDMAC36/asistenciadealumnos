@@ -25,6 +25,19 @@
                 <div id="scan-message" class="p-4 rounded-lg text-center font-semibold"></div>
             </div>
 
+            {{-- Success modal overlay --}}
+            <div id="success-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                <div class="bg-white rounded-2xl shadow-2xl p-8 mx-4 max-w-sm w-full text-center transform transition-all">
+                    <div class="text-6xl mb-4">✅</div>
+                    <h2 class="text-2xl font-bold text-green-600 mb-2">¡Asistencia Exitosa!</h2>
+                    <p id="success-student-name" class="text-lg font-semibold text-gray-800"></p>
+                    <p id="success-student-time" class="text-sm text-gray-500 mt-1"></p>
+                    <div class="mt-6 h-1 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="success-progress" class="h-full bg-green-500 rounded-full transition-all duration-[3000ms] ease-linear" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Scan log --}}
             <div class="mt-6">
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">📝 Registro de escaneos de hoy</h3>
@@ -68,17 +81,18 @@
                 messageDiv.textContent = data.message;
                 messageDiv.className = 'p-4 rounded-lg text-center font-semibold bg-green-50 text-green-700 border border-green-200';
                 addToLog(data.student.name, data.student.time, true);
+                showSuccessOverlay(data.student.name, data.student.time);
             } else {
                 messageDiv.textContent = data.message;
                 messageDiv.className = 'p-4 rounded-lg text-center font-semibold bg-amber-50 text-amber-700 border border-amber-200';
             }
 
-            // Esperar 2 segundos antes de permitir otro escaneo
+            // Esperar 3 segundos antes de permitir otro escaneo
             setTimeout(() => {
                 isProcessing = false;
                 messageDiv.textContent = '📷 Listo para escanear otro código...';
                 messageDiv.className = 'p-4 rounded-lg text-center font-semibold bg-gray-50 text-gray-500';
-            }, 2000);
+            }, 3000);
         })
         .catch(error => {
             messageDiv.textContent = '❌ Error de conexión. Intenta de nuevo.';
@@ -102,6 +116,30 @@
             <span class="text-xs text-gray-500">${time}</span>
         `;
         log.prepend(entry);
+    }
+
+    function showSuccessOverlay(name, time) {
+        const overlay = document.getElementById('success-overlay');
+        const progressBar = document.getElementById('success-progress');
+        document.getElementById('success-student-name').textContent = name;
+        document.getElementById('success-student-time').textContent = 'Hora: ' + time;
+
+        // Show overlay
+        overlay.classList.remove('hidden');
+
+        // Animate progress bar
+        progressBar.style.width = '100%';
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                progressBar.style.width = '0%';
+            });
+        });
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            progressBar.style.width = '100%';
+        }, 3000);
     }
 
     // Inicializar el escáner
