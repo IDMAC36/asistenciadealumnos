@@ -1,0 +1,74 @@
+@extends('layouts.app')
+
+@section('title', 'Editar Alumno - Asistencia QR')
+
+@section('content')
+<div class="max-w-xl mx-auto">
+    <div class="mb-6">
+        <a href="{{ route('students.show', $student) }}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium transition-colors">
+            ← Volver al detalle
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">✏️ Editar Alumno</h1>
+
+        <form action="{{ route('students.update', $student) }}" method="POST" class="space-y-5">
+            @csrf
+            @method('PUT')
+
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+                <input type="text"
+                       name="name"
+                       id="name"
+                       value="{{ old('name', $student->name) }}"
+                       required
+                       autofocus
+                       class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow @error('name') border-red-500 @enderror">
+                @error('name')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                <input type="email"
+                       name="email"
+                       id="email"
+                       value="{{ old('email', $student->email) }}"
+                       required
+                       class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow @error('email') border-red-500 @enderror">
+                @error('email')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="grado" class="block text-sm font-medium text-gray-700 mb-1">Grado</label>
+                <input type="text"
+                       name="grado"
+                       id="grado"
+                       value="{{ old('grado', $student->grado) }}"
+                       required
+                       placeholder="Ej: 3° A Primaria"
+                       class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow @error('grado') border-red-500 @enderror">
+                @error('grado')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors">
+                    Guardar Cambios
+                </button>
+                <a href="{{ route('students.show', $student) }}"
+                   class="text-gray-500 hover:text-gray-700 font-medium py-2.5 px-4 transition-colors">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
