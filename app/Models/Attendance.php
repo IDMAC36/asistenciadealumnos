@@ -14,6 +14,7 @@ class Attendance extends Model
         'student_id',
         'date',
         'check_in_time',
+        'status',
     ];
 
     protected function casts(): array

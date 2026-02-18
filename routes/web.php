@@ -16,3 +16,5 @@ Route::resource('students', StudentController::class);
 Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
 Route::get('/attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan');
 Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('attendance.mark');
+Route::post('/attendance/absent', [AttendanceController::class, 'markAbsent'])->name('attendance.absent');
+Route::post('/attendance/absent-all', [AttendanceController::class, 'markAllAbsent'])->name('attendance.absent.all');

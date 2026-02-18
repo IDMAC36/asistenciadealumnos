@@ -10,10 +10,12 @@
             {{ \Carbon\Carbon::parse($date)->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
         </p>
     </div>
-    <a href="{{ route('attendance.scan') }}"
-       class="mt-4 sm:mt-0 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow-sm transition-colors">
-        📷 Escanear QR
-    </a>
+    <div class="mt-4 sm:mt-0 flex gap-3">
+        <a href="{{ route('attendance.scan') }}"
+           class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow-sm transition-colors">
+            📷 Escanear QR
+        </a>
+    </div>
 </div>
 
 {{-- Filtro por fecha --}}
@@ -35,30 +37,34 @@
 </div>
 
 {{-- Estadísticas --}}
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <p class="text-xs text-gray-500 uppercase tracking-wider">Presentes</p>
-        <p class="text-3xl font-bold text-green-600 mt-1">{{ $attendances->count() }}</p>
-    </div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <p class="text-xs text-gray-500 uppercase tracking-wider">Total Alumnos</p>
         <p class="text-3xl font-bold text-gray-900 mt-1">{{ $totalStudents }}</p>
     </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <p class="text-xs text-gray-500 uppercase tracking-wider">Ausentes</p>
-        <p class="text-3xl font-bold text-red-500 mt-1">{{ $totalStudents - $attendances->count() }}</p>
+    <div class="bg-white rounded-xl shadow-sm border border-green-200 p-5 bg-green-50">
+        <p class="text-xs text-green-600 uppercase tracking-wider font-semibold">Presentes</p>
+        <p class="text-3xl font-bold text-green-600 mt-1">{{ $presentes }}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-red-200 p-5 bg-red-50">
+        <p class="text-xs text-red-600 uppercase tracking-wider font-semibold">Ausentes</p>
+        <p class="text-3xl font-bold text-red-500 mt-1">{{ $ausentes }}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-yellow-200 p-5 bg-yellow-50">
+        <p class="text-xs text-yellow-600 uppercase tracking-wider font-semibold">Sin Registro</p>
+        <p class="text-3xl font-bold text-yellow-600 mt-1">{{ $sinRegistro }}</p>
     </div>
 </div>
 
-{{-- Tabla de asistencia --}}
-@if($attendances->isEmpty())
+{{-- Tabla de asistencia (todos los alumnos) --}}
+@if($studentList->isEmpty())
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
         <div class="text-6xl mb-4">📭</div>
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">Sin registros de asistencia</h3>
-        <p class="text-gray-500 mb-6">Aún no se ha registrado asistencia para esta fecha.</p>
-        <a href="{{ route('attendance.scan') }}"
-           class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors">
-            📷 Comenzar a Escanear
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">No hay alumnos registrados</h3>
+        <p class="text-gray-500 mb-6">Registre alumnos primero para comenzar a tomar asistencia.</p>
+        <a href="{{ route('students.create') }}"
+           class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors">
+            ➕ Registrar Alumno
         </a>
     </div>
 @else
@@ -69,24 +75,63 @@
                     <tr>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Alumno</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Hora de Entrada</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Grado</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Hora</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    @foreach($attendances as $attendance)
-                        <tr class="hover:bg-gray-50 transition-colors">
+                    @foreach($studentList as $item)
+                        <tr class="hover:bg-gray-50 transition-colors
+                            @if($item->status === 'ausente') bg-red-50 @elseif($item->status === 'sin_registro') bg-yellow-50/50 @endif">
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $loop->iteration }}</td>
                             <td class="px-6 py-4">
-                                <span class="text-sm font-medium text-gray-900">{{ $attendance->student->name }}</span>
+                                <div>
+                                    <span class="text-sm font-medium text-gray-900">{{ $item->student->name }}</span>
+                                    <p class="text-xs text-gray-500">{{ $item->student->email }}</p>
+                                </div>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ $attendance->student->email }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ $attendance->check_in_time }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ $item->student->grado ?: '—' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">
+                                @if($item->status === 'presente')
+                                    {{ $item->check_in_time }}
+                                @elseif($item->status === 'ausente')
+                                    <span class="text-red-400 italic">—</span>
+                                @else
+                                    <span class="text-gray-400">—</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    ✅ Presente
-                                </span>
+                                @if($item->status === 'presente')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        ✅ Presente
+                                    </span>
+                                @elseif($item->status === 'ausente')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        ❌ Ausente
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        ⚪ Sin Registro
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4">
+                                @if($item->status !== 'ausente')
+                                    <form method="POST" action="{{ route('attendance.absent') }}" class="inline"
+                                          onsubmit="return confirm('¿Marcar a {{ $item->student->name }} como ausente?')">
+                                        @csrf
+                                        <input type="hidden" name="student_id" value="{{ $item->student->id }}">
+                                        <input type="hidden" name="date" value="{{ $date }}">
+                                        <button type="submit"
+                                                class="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">
+                                            ❌ Marcar Ausente
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-xs text-gray-400 italic">Ya marcado</span>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -94,5 +139,20 @@
             </table>
         </div>
     </div>
+
+    {{-- Botón para marcar a todos sin registro como ausentes --}}
+    @if($sinRegistro > 0)
+        <div class="mt-4 flex justify-end">
+            <form method="POST" action="{{ route('attendance.absent.all') }}" id="markAllAbsentForm"
+                  onsubmit="return confirm('¿Marcar a los {{ $sinRegistro }} alumno(s) sin registro como ausentes?')">
+                @csrf
+                <input type="hidden" name="date" value="{{ $date }}">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow-sm transition-colors">
+                    ❌ Marcar Todos Sin Registro como Ausentes ({{ $sinRegistro }})
+                </button>
+            </form>
+        </div>
+    @endif
 @endif
 @endsection

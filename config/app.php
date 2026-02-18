@@ -54,6 +54,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'locale' => 'es',
+
+    'fallback_locale' => 'es',
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
@@ -65,7 +69,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'America/Guatemala',
 
     /*
     |--------------------------------------------------------------------------
