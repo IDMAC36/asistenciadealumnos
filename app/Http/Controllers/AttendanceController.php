@@ -75,7 +75,13 @@ class AttendanceController extends Controller
             if ($existing->status === 'presente') {
                 return response()->json([
                     'success' => false,
-                    'message' => '⚠️ ' . $student->name . ' ya registró asistencia hoy.',
+                    'already_registered' => true,
+                    'message' => '⚠️ ' . $student->name . ' ya ha sido registrado.',
+                    'student' => [
+                        'name'  => $student->name,
+                        'email' => $student->email,
+                        'time'  => $existing->check_in_time,
+                    ],
                 ]);
             }
 

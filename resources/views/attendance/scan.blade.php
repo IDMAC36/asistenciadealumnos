@@ -38,6 +38,19 @@
                 </div>
             </div>
 
+            {{-- Already registered modal overlay --}}
+            <div id="already-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                <div class="bg-white rounded-2xl shadow-2xl p-8 mx-4 max-w-sm w-full text-center transform transition-all">
+                    <div class="text-6xl mb-4">⚠️</div>
+                    <h2 class="text-2xl font-bold text-amber-600 mb-2">Ya ha sido registrado</h2>
+                    <p id="already-student-name" class="text-lg font-semibold text-gray-800"></p>
+                    <p id="already-student-time" class="text-sm text-gray-500 mt-1"></p>
+                    <div class="mt-6 h-1 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="already-progress" class="h-full bg-amber-500 rounded-full transition-all duration-[3000ms] ease-linear" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Scan log --}}
             <div class="mt-6">
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">📝 Registro de escaneos de hoy</h3>
@@ -82,9 +95,13 @@
                 messageDiv.className = 'p-4 rounded-lg text-center font-semibold bg-green-50 text-green-700 border border-green-200';
                 addToLog(data.student.name, data.student.time, true);
                 showSuccessOverlay(data.student.name, data.student.time);
-            } else {
+            } else if (data.already_registered) {
                 messageDiv.textContent = data.message;
                 messageDiv.className = 'p-4 rounded-lg text-center font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+                showAlreadyOverlay(data.student.name, data.student.time);
+            } else {
+                messageDiv.textContent = data.message;
+                messageDiv.className = 'p-4 rounded-lg text-center font-semibold bg-red-50 text-red-700 border border-red-200';
             }
 
             // Esperar 3 segundos antes de permitir otro escaneo
@@ -136,6 +153,27 @@
         });
 
         // Hide after 3 seconds
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            progressBar.style.width = '100%';
+        }, 3000);
+    }
+
+    function showAlreadyOverlay(name, time) {
+        const overlay = document.getElementById('already-overlay');
+        const progressBar = document.getElementById('already-progress');
+        document.getElementById('already-student-name').textContent = name;
+        document.getElementById('already-student-time').textContent = 'Registrado a las ' + time;
+
+        overlay.classList.remove('hidden');
+
+        progressBar.style.width = '100%';
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                progressBar.style.width = '0%';
+            });
+        });
+
         setTimeout(() => {
             overlay.classList.add('hidden');
             progressBar.style.width = '100%';
