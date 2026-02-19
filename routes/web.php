@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\PermissionRequestController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +34,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('attendance.mark');
     Route::post('/attendance/absent', [AttendanceController::class, 'markAbsent'])->name('attendance.absent');
     Route::post('/attendance/absent-all', [AttendanceController::class, 'markAllAbsent'])->name('attendance.absent.all');
+
+    // ──────────────────────────────────────────────────
+    // Personal (Staff) CRUD + Asistencia
+    // ──────────────────────────────────────────────────
+    Route::resource('staff', StaffController::class);
+    Route::get('/staff-attendance', [StaffAttendanceController::class, 'index'])->name('staff-attendance.index');
+    Route::get('/staff-attendance/scan', [StaffAttendanceController::class, 'scan'])->name('staff-attendance.scan');
+    Route::post('/staff-attendance/mark', [StaffAttendanceController::class, 'mark'])->name('staff-attendance.mark');
+    Route::post('/staff-attendance/absent', [StaffAttendanceController::class, 'markAbsent'])->name('staff-attendance.absent');
+    Route::post('/staff-attendance/absent-all', [StaffAttendanceController::class, 'markAllAbsent'])->name('staff-attendance.absent.all');
 
     // ──────────────────────────────────────────────────
     // Permisos de Estudiantes

@@ -32,6 +32,16 @@
                             📷 Escanear QR
                         </a>
 
+                        {{-- Personal --}}
+                        <a href="{{ route('staff.index') }}"
+                           class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('staff.*') ? 'bg-indigo-700 text-white' : '' }}">
+                            👔 Personal
+                        </a>
+                        <a href="{{ route('staff-attendance.index') }}"
+                           class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('staff-attendance.*') ? 'bg-indigo-700 text-white' : '' }}">
+                            📊 Asist. Personal
+                        </a>
+
                         {{-- Menú Permisos según rol --}}
                         @hasanyrole('secretaria|admin')
                             <a href="{{ route('permissions.solicitudes') }}"
@@ -89,6 +99,14 @@
             <a href="{{ route('attendance.scan') }}"
                class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('attendance.scan') ? 'bg-indigo-700 text-white' : '' }}">
                 📷 Escanear
+            </a>
+            <a href="{{ route('staff.index') }}"
+               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('staff.*') ? 'bg-indigo-700 text-white' : '' }}">
+                👔 Personal
+            </a>
+            <a href="{{ route('staff-attendance.index') }}"
+               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('staff-attendance.*') ? 'bg-indigo-700 text-white' : '' }}">
+                📊 Asist. Personal
             </a>
 
             @hasanyrole('secretaria|admin')
