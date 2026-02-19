@@ -46,8 +46,9 @@ COPY . .
 # Copy built frontend assets from stage 1
 COPY --from=frontend /app/public/build ./public/build
 
-# Run post-install scripts
-RUN composer dump-autoload --optimize
+# Run post-install scripts and regenerate autoloader with all files
+RUN composer dump-autoload --optimize --no-dev \
+    && php artisan package:discover --ansi
 
 # Create storage directories and set permissions
 RUN mkdir -p storage/framework/{sessions,views,cache} \
