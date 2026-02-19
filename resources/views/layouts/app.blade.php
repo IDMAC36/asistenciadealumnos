@@ -101,6 +101,16 @@
                     <span class="text-lg">✅</span> Permisos
                 </a>
             @endhasanyrole
+
+            {{-- Sección: Administración --}}
+            @hasrole('admin')
+            <p class="px-3 text-xs font-semibold text-indigo-300 uppercase tracking-wider mt-5 mb-2">Administración</p>
+
+                <a href="{{ route('users.index') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('users.*') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                    <span class="text-lg">👥</span> Usuarios
+                </a>
+            @endhasrole
         </nav>
 
         {{-- User info & logout --}}

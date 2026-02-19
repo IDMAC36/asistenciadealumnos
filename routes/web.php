@@ -5,6 +5,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\PermissionRequestController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -66,5 +67,12 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin|operativo|secretaria'])->group(function () {
         Route::get('/permisos/aceptados', [PermissionRequestController::class, 'aceptados'])->name('permissions.aceptados');
         Route::get('/permisos/exportar', [PermissionRequestController::class, 'exportar'])->name('permissions.exportar');
+    });
+
+    // ──────────────────────────────────────────────────
+    // Gestión de Usuarios (solo Admin)
+    // ──────────────────────────────────────────────────
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('users', UserController::class)->except(['show']);
     });
 });
