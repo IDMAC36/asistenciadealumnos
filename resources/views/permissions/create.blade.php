@@ -102,6 +102,7 @@
                         <option value="Teléfono" {{ old('por_via') == 'Teléfono' ? 'selected' : '' }}>Teléfono</option>
                         <option value="Correo" {{ old('por_via') == 'Correo' ? 'selected' : '' }}>Correo</option>
                         <option value="Nota escrita" {{ old('por_via') == 'Nota escrita' ? 'selected' : '' }}>Nota escrita</option>
+                        <option value="WhatsApp" {{ old('por_via') == 'WhatsApp' ? 'selected' : '' }}>WhatsApp</option>
                     </select>
                     @error('por_via')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
