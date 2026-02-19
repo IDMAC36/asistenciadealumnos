@@ -14,7 +14,7 @@
         {{-- Header --}}
         <div class="bg-indigo-600 px-6 py-5">
             <h1 class="text-xl font-bold text-white">{{ $staff->name }}</h1>
-            <p class="text-indigo-200 text-sm mt-1">{{ $staff->role }}</p>
+            <p class="text-indigo-200 text-sm mt-1">DPI: {{ $staff->dpi }} · {{ $staff->role }}</p>
         </div>
 
         {{-- QR Code --}}
@@ -37,6 +37,10 @@
                 <div>
                     <dt class="text-xs text-gray-500 uppercase tracking-wider">Nombre</dt>
                     <dd class="text-sm font-medium text-gray-900 mt-1">{{ $staff->name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-gray-500 uppercase tracking-wider">DPI</dt>
+                    <dd class="text-sm font-medium text-gray-900 mt-1">{{ $staff->dpi }}</dd>
                 </div>
                 <div>
                     <dt class="text-xs text-gray-500 uppercase tracking-wider">Rol</dt>

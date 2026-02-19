@@ -32,14 +32,14 @@
             </div>
 
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-                <input type="email"
-                       name="email"
-                       id="email"
-                       value="{{ old('email', $student->email) }}"
+                <label for="codigo_personal" class="block text-sm font-medium text-gray-700 mb-1">Código Personal</label>
+                <input type="text"
+                       name="codigo_personal"
+                       id="codigo_personal"
+                       value="{{ old('codigo_personal', $student->codigo_personal) }}"
                        required
-                       class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow @error('email') border-red-500 @enderror">
-                @error('email')
+                       class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow @error('codigo_personal') border-red-500 @enderror">
+                @error('codigo_personal')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>

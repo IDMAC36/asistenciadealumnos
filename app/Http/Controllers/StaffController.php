@@ -24,11 +24,13 @@ class StaffController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'dpi'  => 'required|string|max:20',
             'role' => 'required|string|max:255',
         ]);
 
         $staff = Staff::create([
             'name'    => $request->name,
+            'dpi'     => $request->dpi,
             'role'    => $request->role,
             'qr_code' => 'STAFF-' . (string) Str::uuid(),
         ]);
@@ -52,11 +54,13 @@ class StaffController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'dpi'  => 'required|string|max:20',
             'role' => 'required|string|max:255',
         ]);
 
         $staff->update([
             'name' => $request->name,
+            'dpi'  => $request->dpi,
             'role' => $request->role,
         ]);
 

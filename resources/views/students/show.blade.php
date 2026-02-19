@@ -14,7 +14,7 @@
         {{-- Header --}}
         <div class="bg-indigo-600 px-6 py-5">
             <h1 class="text-xl font-bold text-white">{{ $student->name }}</h1>
-            <p class="text-indigo-200 text-sm mt-1">{{ $student->email }} · {{ $student->grado }}</p>
+            <p class="text-indigo-200 text-sm mt-1">{{ $student->codigo_personal }} · {{ $student->grado }}</p>
         </div>
 
         {{-- QR Code --}}
@@ -39,8 +39,8 @@
                     <dd class="text-sm font-medium text-gray-900 mt-1">{{ $student->name }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs text-gray-500 uppercase tracking-wider">Email</dt>
-                    <dd class="text-sm font-medium text-gray-900 mt-1">{{ $student->email }}</dd>
+                    <dt class="text-xs text-gray-500 uppercase tracking-wider">Código Personal</dt>
+                    <dd class="text-sm font-medium text-gray-900 mt-1">{{ $student->codigo_personal }}</dd>
                 </div>
                 <div>
                     <dt class="text-xs text-gray-500 uppercase tracking-wider">Grado</dt>

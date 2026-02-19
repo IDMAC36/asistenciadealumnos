@@ -89,7 +89,7 @@
                             <td class="px-6 py-4">
                                 <div>
                                     <span class="text-sm font-medium text-gray-900">{{ $item->student->name }}</span>
-                                    <p class="text-xs text-gray-500">{{ $item->student->email }}</p>
+                                    <p class="text-xs text-gray-500">{{ $item->student->codigo_personal }}</p>
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $item->student->grado ?: '—' }}</td>

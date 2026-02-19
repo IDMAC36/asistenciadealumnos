@@ -32,7 +32,7 @@
                     <tr>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Código Personal</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Grado</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha Registro</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
@@ -45,7 +45,7 @@
                             <td class="px-6 py-4">
                                 <span class="text-sm font-medium text-gray-900">{{ $student->name }}</span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ $student->email }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ $student->codigo_personal }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $student->grado }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $student->created_at->format('d/m/Y') }}</td>
                             <td class="px-6 py-4 text-right">

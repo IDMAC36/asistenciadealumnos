@@ -32,16 +32,16 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email|unique:students,email',
-            'grado' => 'required|string|max:100',
+            'name'             => 'required|string|max:255',
+            'codigo_personal'  => 'required|string|max:100',
+            'grado'            => 'required|string|max:100',
         ]);
 
         $student = Student::create([
-            'name'    => $request->name,
-            'email'   => $request->email,
-            'grado'   => $request->grado,
-            'qr_code' => (string) Str::uuid(),
+            'name'             => $request->name,
+            'codigo_personal'  => $request->codigo_personal,
+            'grado'            => $request->grado,
+            'qr_code'          => (string) Str::uuid(),
         ]);
 
         return redirect()->route('students.show', $student)
@@ -71,15 +71,15 @@ class StudentController extends Controller
     public function update(Request $request, Student $student)
     {
         $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email|unique:students,email,' . $student->id,
-            'grado' => 'required|string|max:100',
+            'name'             => 'required|string|max:255',
+            'codigo_personal'  => 'required|string|max:100',
+            'grado'            => 'required|string|max:100',
         ]);
 
         $student->update([
-            'name'  => $request->name,
-            'email' => $request->email,
-            'grado' => $request->grado,
+            'name'             => $request->name,
+            'codigo_personal'  => $request->codigo_personal,
+            'grado'            => $request->grado,
         ]);
 
         return redirect()->route('students.show', $student)

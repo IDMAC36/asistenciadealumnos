@@ -11,6 +11,7 @@ class Staff extends Model
 
     protected $fillable = [
         'name',
+        'dpi',
         'role',
         'qr_code',
     ];
