@@ -17,7 +17,8 @@
                     <a href="{{ route('students.index') }}" class="text-white font-bold text-xl">
                         📋 Asistencia QR
                     </a>
-                    <div class="hidden sm:flex items-center gap-4">
+                    @auth
+                    <div class="hidden md:flex items-center gap-1">
                         <a href="{{ route('students.index') }}"
                            class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('students.*') ? 'bg-indigo-700 text-white' : '' }}">
                             👨‍🎓 Alumnos
@@ -30,12 +31,53 @@
                            class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('attendance.scan') ? 'bg-indigo-700 text-white' : '' }}">
                             📷 Escanear QR
                         </a>
+
+                        {{-- Menú Permisos según rol --}}
+                        @hasanyrole('secretaria|admin')
+                            <a href="{{ route('permissions.solicitudes') }}"
+                               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('permissions.solicitudes') || request()->routeIs('permissions.create') ? 'bg-indigo-700 text-white' : '' }}">
+                                📝 Solicitudes
+                            </a>
+                        @endhasanyrole
+
+                        @hasrole('admin')
+                            <a href="{{ route('permissions.pendientes') }}"
+                               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('permissions.pendientes') ? 'bg-indigo-700 text-white' : '' }}">
+                                📥 Recepción
+                            </a>
+                        @endhasrole
+
+                        @hasanyrole('admin|operativo')
+                            <a href="{{ route('permissions.aceptados') }}"
+                               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('permissions.aceptados') ? 'bg-indigo-700 text-white' : '' }}">
+                                ✅ Permisos
+                            </a>
+                        @endhasanyrole
                     </div>
+                    @endauth
                 </div>
+
+                {{-- User info & logout --}}
+                @auth
+                <div class="hidden md:flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-white text-sm font-medium">{{ auth()->user()->name }}</p>
+                        <p class="text-indigo-200 text-xs">{{ auth()->user()->roles->first()?->name ?? 'usuario' }}</p>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit"
+                                class="text-indigo-200 hover:text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            🚪 Salir
+                        </button>
+                    </form>
+                </div>
+                @endauth
             </div>
         </div>
         {{-- Mobile nav --}}
-        <div class="sm:hidden border-t border-indigo-500 px-4 py-2 flex gap-2">
+        @auth
+        <div class="md:hidden border-t border-indigo-500 px-4 py-2 flex flex-wrap gap-2">
             <a href="{{ route('students.index') }}"
                class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('students.*') ? 'bg-indigo-700 text-white' : '' }}">
                 👨‍🎓 Alumnos
@@ -48,7 +90,36 @@
                class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('attendance.scan') ? 'bg-indigo-700 text-white' : '' }}">
                 📷 Escanear
             </a>
+
+            @hasanyrole('secretaria|admin')
+                <a href="{{ route('permissions.solicitudes') }}"
+                   class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('permissions.solicitudes') ? 'bg-indigo-700 text-white' : '' }}">
+                    📝 Solicitudes
+                </a>
+            @endhasanyrole
+
+            @hasrole('admin')
+                <a href="{{ route('permissions.pendientes') }}"
+                   class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('permissions.pendientes') ? 'bg-indigo-700 text-white' : '' }}">
+                    📥 Recepción
+                </a>
+            @endhasrole
+
+            @hasanyrole('admin|operativo')
+                <a href="{{ route('permissions.aceptados') }}"
+                   class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('permissions.aceptados') ? 'bg-indigo-700 text-white' : '' }}">
+                    ✅ Permisos
+                </a>
+            @endhasanyrole
+
+            <form method="POST" action="{{ route('logout') }}" class="ml-auto">
+                @csrf
+                <button type="submit" class="text-indigo-200 hover:text-white px-3 py-2 rounded-md text-xs font-medium">
+                    🚪 {{ auth()->user()->name }} (Salir)
+                </button>
+            </form>
         </div>
+        @endauth
     </nav>
 
     {{-- Flash messages --}}
