@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StaffAttendanceHistoryExport;
 use App\Models\Staff;
 use App\Models\StaffAttendance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StaffAttendanceController extends Controller
 {
@@ -228,5 +230,26 @@ class StaffAttendanceController extends Controller
             'staffMembers', 'staff', 'staffId', 'month', 'calendar', 'stats',
             'prevMonth', 'nextMonth', 'monthLabel'
         ));
+    }
+
+    /**
+     * Exportar historial de asistencia de personal a Excel.
+     */
+    public function exportHistory(Request $request)
+    {
+        $request->validate([
+            'staff_id' => 'required|exists:staff,id',
+            'month' => 'required|date_format:Y-m',
+        ]);
+
+        $staff = Staff::findOrFail($request->staff_id);
+        $month = $request->month;
+        $monthLabel = Carbon::parse($month . '-01')->locale('es')->isoFormat('MMMM_YYYY');
+        $filename = 'Historial_' . str_replace(' ', '_', $staff->name) . '_' . $monthLabel . '.xlsx';
+
+        return Excel::download(
+            new StaffAttendanceHistoryExport($staff, $month),
+            $filename
+        );
     }
 }

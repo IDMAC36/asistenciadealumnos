@@ -55,6 +55,10 @@
                    class="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-400 text-white text-sm rounded-lg transition-colors">
                     Siguiente →
                 </a>
+                <a href="{{ route('staff-attendance.history.export', ['staff_id' => $staff->id, 'month' => $month]) }}"
+                   class="px-3 py-1.5 bg-green-500 hover:bg-green-400 text-white text-sm rounded-lg transition-colors flex items-center gap-1">
+                    📥 Excel
+                </a>
             </div>
         </div>
 

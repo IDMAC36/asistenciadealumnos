@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StudentAttendanceHistoryExport;
 use App\Models\Attendance;
 use App\Models\PermissionRequest;
 use App\Models\Student;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceController extends Controller
 {
@@ -253,5 +255,26 @@ class AttendanceController extends Controller
             'students', 'student', 'studentId', 'month', 'calendar', 'stats',
             'prevMonth', 'nextMonth', 'monthLabel'
         ));
+    }
+
+    /**
+     * Exportar historial de asistencia a Excel.
+     */
+    public function exportHistory(Request $request)
+    {
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'month' => 'required|date_format:Y-m',
+        ]);
+
+        $student = Student::findOrFail($request->student_id);
+        $month = $request->month;
+        $monthLabel = Carbon::parse($month . '-01')->locale('es')->isoFormat('MMMM_YYYY');
+        $filename = 'Historial_' . str_replace(' ', '_', $student->name) . '_' . $monthLabel . '.xlsx';
+
+        return Excel::download(
+            new StudentAttendanceHistoryExport($student, $month),
+            $filename
+        );
     }
 }
