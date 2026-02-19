@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Staff;
 use App\Models\StaffAttendance;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class StaffAttendanceController extends Controller
@@ -166,5 +167,66 @@ class StaffAttendanceController extends Controller
 
         return redirect()->route('staff-attendance.index', ['date' => $date])
             ->with('success', $unregistered->count() . ' personal marcado(s) como ausente(s).');
+    }
+
+    /**
+     * Historial de asistencia mensual por personal.
+     */
+    public function history(Request $request)
+    {
+        $staffMembers = Staff::orderBy('name')->get();
+        $staffId = $request->query('staff_id');
+        $month = $request->query('month', now()->format('Y-m'));
+
+        $staff = $staffId ? Staff::find($staffId) : null;
+        $calendar = [];
+        $stats = ['presente' => 0, 'ausente' => 0, 'sin_registro' => 0];
+
+        if ($staff) {
+            $startOfMonth = Carbon::parse($month . '-01');
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+            $today = now()->startOfDay();
+
+            $attendances = StaffAttendance::where('staff_id', $staff->id)
+                ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                ->get()
+                ->keyBy(fn($a) => Carbon::parse($a->date)->format('Y-m-d'));
+
+            for ($day = $startOfMonth->copy(); $day->lte($endOfMonth); $day->addDay()) {
+                $dateStr = $day->format('Y-m-d');
+                $dayOfWeek = $day->dayOfWeek;
+                $isWeekend = in_array($dayOfWeek, [0, 6]);
+                $isFuture = $day->gt($today);
+
+                if ($isWeekend || $isFuture) {
+                    $status = null;
+                } elseif (isset($attendances[$dateStr])) {
+                    $status = $attendances[$dateStr]->status;
+                    $stats[$status] = ($stats[$status] ?? 0) + 1;
+                } else {
+                    $status = 'sin_registro';
+                    $stats['sin_registro']++;
+                }
+
+                $calendar[] = (object) [
+                    'date' => $dateStr,
+                    'day' => $day->day,
+                    'dayOfWeek' => $dayOfWeek,
+                    'status' => $status,
+                    'isWeekend' => $isWeekend,
+                    'isFuture' => $isFuture,
+                    'checkInTime' => isset($attendances[$dateStr]) ? $attendances[$dateStr]->check_in_time : null,
+                ];
+            }
+        }
+
+        $prevMonth = Carbon::parse($month . '-01')->subMonth()->format('Y-m');
+        $nextMonth = Carbon::parse($month . '-01')->addMonth()->format('Y-m');
+        $monthLabel = Carbon::parse($month . '-01')->locale('es')->isoFormat('MMMM YYYY');
+
+        return view('staff-attendance.history', compact(
+            'staffMembers', 'staff', 'staffId', 'month', 'calendar', 'stats',
+            'prevMonth', 'nextMonth', 'monthLabel'
+        ));
     }
 }

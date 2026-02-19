@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('attendance.mark');
     Route::post('/attendance/absent', [AttendanceController::class, 'markAbsent'])->name('attendance.absent');
     Route::post('/attendance/absent-all', [AttendanceController::class, 'markAllAbsent'])->name('attendance.absent.all');
+    Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
 
     // ──────────────────────────────────────────────────
     // Personal (Staff) CRUD + Asistencia
@@ -45,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/staff-attendance/mark', [StaffAttendanceController::class, 'mark'])->name('staff-attendance.mark');
     Route::post('/staff-attendance/absent', [StaffAttendanceController::class, 'markAbsent'])->name('staff-attendance.absent');
     Route::post('/staff-attendance/absent-all', [StaffAttendanceController::class, 'markAllAbsent'])->name('staff-attendance.absent.all');
+    Route::get('/staff-attendance/history', [StaffAttendanceController::class, 'history'])->name('staff-attendance.history');
 
     // ──────────────────────────────────────────────────
     // Permisos de Estudiantes

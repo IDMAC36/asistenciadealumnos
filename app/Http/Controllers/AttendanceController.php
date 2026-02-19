@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\PermissionRequest;
 use App\Models\Student;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
@@ -176,5 +178,80 @@ class AttendanceController extends Controller
 
         return redirect()->route('attendance.index', ['date' => $date])
             ->with('success', $unregistered->count() . ' alumno(s) marcados como ausentes.');
+    }
+
+    /**
+     * Historial de asistencia mensual por alumno.
+     */
+    public function history(Request $request)
+    {
+        $students = Student::orderBy('name')->get();
+        $studentId = $request->query('student_id');
+        $month = $request->query('month', now()->format('Y-m'));
+
+        $student = $studentId ? Student::find($studentId) : null;
+        $calendar = [];
+        $stats = ['presente' => 0, 'ausente' => 0, 'permiso' => 0, 'sin_registro' => 0];
+
+        if ($student) {
+            $startOfMonth = Carbon::parse($month . '-01');
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+            $today = now()->startOfDay();
+
+            // Obtener asistencias del mes
+            $attendances = Attendance::where('student_id', $student->id)
+                ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                ->get()
+                ->keyBy(fn($a) => Carbon::parse($a->date)->format('Y-m-d'));
+
+            // Obtener permisos aceptados del mes (por nombre del alumno)
+            $permisos = PermissionRequest::where('nombre', $student->name)
+                ->where('estado', 'aceptado')
+                ->whereNotNull('accepted_at')
+                ->whereBetween('created_at', [$startOfMonth->startOfDay(), $endOfMonth->endOfDay()])
+                ->get()
+                ->keyBy(fn($p) => Carbon::parse($p->created_at)->format('Y-m-d'));
+
+            // Construir calendario día a día
+            for ($day = $startOfMonth->copy(); $day->lte($endOfMonth); $day->addDay()) {
+                $dateStr = $day->format('Y-m-d');
+                $dayOfWeek = $day->dayOfWeek; // 0=domingo, 6=sábado
+                $isWeekend = in_array($dayOfWeek, [0, 6]);
+                $isFuture = $day->gt($today);
+
+                if ($isWeekend || $isFuture) {
+                    $status = null; // No aplica
+                } elseif (isset($permisos[$dateStr])) {
+                    $status = 'permiso';
+                    $stats['permiso']++;
+                } elseif (isset($attendances[$dateStr])) {
+                    $status = $attendances[$dateStr]->status;
+                    $stats[$status] = ($stats[$status] ?? 0) + 1;
+                } else {
+                    $status = 'sin_registro';
+                    $stats['sin_registro']++;
+                }
+
+                $calendar[] = (object) [
+                    'date' => $dateStr,
+                    'day' => $day->day,
+                    'dayOfWeek' => $dayOfWeek,
+                    'status' => $status,
+                    'isWeekend' => $isWeekend,
+                    'isFuture' => $isFuture,
+                    'checkInTime' => isset($attendances[$dateStr]) ? $attendances[$dateStr]->check_in_time : null,
+                    'permiso' => $permisos[$dateStr] ?? null,
+                ];
+            }
+        }
+
+        $prevMonth = Carbon::parse($month . '-01')->subMonth()->format('Y-m');
+        $nextMonth = Carbon::parse($month . '-01')->addMonth()->format('Y-m');
+        $monthLabel = Carbon::parse($month . '-01')->locale('es')->isoFormat('MMMM YYYY');
+
+        return view('attendance.history', compact(
+            'students', 'student', 'studentId', 'month', 'calendar', 'stats',
+            'prevMonth', 'nextMonth', 'monthLabel'
+        ));
     }
 }
