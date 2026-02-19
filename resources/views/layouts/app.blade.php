@@ -95,7 +95,7 @@
                 </a>
             @endhasrole
 
-            @hasanyrole('admin|operativo')
+            @hasanyrole('secretaria|admin|operativo')
                 <a href="{{ route('permissions.aceptados') }}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('permissions.aceptados') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
                     <span class="text-lg">✅</span> Permisos

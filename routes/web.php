@@ -62,8 +62,8 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/permisos/{permissionRequest}/aceptar', [PermissionRequestController::class, 'aceptar'])->name('permissions.aceptar');
     });
 
-    // Admin + Operativo: ver aceptados y exportar
-    Route::middleware(['role:admin|operativo'])->group(function () {
+    // Admin + Operativo + Secretaria: ver aceptados y exportar
+    Route::middleware(['role:admin|operativo|secretaria'])->group(function () {
         Route::get('/permisos/aceptados', [PermissionRequestController::class, 'aceptados'])->name('permissions.aceptados');
         Route::get('/permisos/exportar', [PermissionRequestController::class, 'exportar'])->name('permissions.exportar');
     });
