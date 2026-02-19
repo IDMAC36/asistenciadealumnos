@@ -60,4 +60,4 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
 EXPOSE 8080
 
 # Start: run migrations, seed, then serve
-CMD php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD php artisan migrate --force && (php artisan db:seed --force || true) && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
