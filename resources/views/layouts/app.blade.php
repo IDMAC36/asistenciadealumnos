@@ -6,163 +6,159 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Asistencia QR')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        /* Sidebar transition */
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.closed { transform: translateX(-100%); }
+        @media (min-width: 1024px) {
+            .sidebar { transform: translateX(0) !important; }
+        }
+        .sidebar-overlay { transition: opacity 0.3s ease; }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-    {{-- Navbar --}}
-    <nav class="bg-indigo-600 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-8">
-                    <a href="{{ route('students.index') }}" class="text-white font-bold text-xl">
-                        📋 Asistencia QR
-                    </a>
-                    @auth
-                    <div class="hidden md:flex items-center gap-1">
-                        <a href="{{ route('students.index') }}"
-                           class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('students.*') ? 'bg-indigo-700 text-white' : '' }}">
-                            👨‍🎓 Alumnos
-                        </a>
-                        <a href="{{ route('attendance.index') }}"
-                           class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('attendance.index') ? 'bg-indigo-700 text-white' : '' }}">
-                            📊 Asistencia
-                        </a>
-                        <a href="{{ route('attendance.scan') }}"
-                           class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('attendance.scan') ? 'bg-indigo-700 text-white' : '' }}">
-                            📷 Escanear QR
-                        </a>
+    @auth
+    {{-- Mobile top bar --}}
+    <div class="lg:hidden fixed top-0 left-0 right-0 z-40 bg-indigo-600 shadow-lg h-14 flex items-center px-4">
+        <button onclick="toggleSidebar()" class="text-white hover:bg-indigo-700 p-2 rounded-lg transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+        <span class="text-white font-bold text-lg ml-3">📋 Asistencia QR</span>
+    </div>
 
-                        {{-- Personal --}}
-                        <a href="{{ route('staff.index') }}"
-                           class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('staff.*') ? 'bg-indigo-700 text-white' : '' }}">
-                            👔 Personal
-                        </a>
-                        <a href="{{ route('staff-attendance.index') }}"
-                           class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('staff-attendance.*') ? 'bg-indigo-700 text-white' : '' }}">
-                            📊 Asist. Personal
-                        </a>
+    {{-- Sidebar overlay (mobile only) --}}
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden sidebar-overlay" onclick="toggleSidebar()"></div>
 
-                        {{-- Menú Permisos según rol --}}
-                        @hasanyrole('secretaria|admin')
-                            <a href="{{ route('permissions.solicitudes') }}"
-                               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('permissions.solicitudes') || request()->routeIs('permissions.create') ? 'bg-indigo-700 text-white' : '' }}">
-                                📝 Solicitudes
-                            </a>
-                        @endhasanyrole
-
-                        @hasrole('admin')
-                            <a href="{{ route('permissions.pendientes') }}"
-                               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('permissions.pendientes') ? 'bg-indigo-700 text-white' : '' }}">
-                                📥 Recepción
-                            </a>
-                        @endhasrole
-
-                        @hasanyrole('admin|operativo')
-                            <a href="{{ route('permissions.aceptados') }}"
-                               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('permissions.aceptados') ? 'bg-indigo-700 text-white' : '' }}">
-                                ✅ Permisos
-                            </a>
-                        @endhasanyrole
-                    </div>
-                    @endauth
-                </div>
-
-                {{-- User info & logout --}}
-                @auth
-                <div class="hidden md:flex items-center gap-3">
-                    <div class="text-right">
-                        <p class="text-white text-sm font-medium">{{ auth()->user()->name }}</p>
-                        <p class="text-indigo-200 text-xs">{{ auth()->user()->roles->first()?->name ?? 'usuario' }}</p>
-                    </div>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                                class="text-indigo-200 hover:text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            🚪 Salir
-                        </button>
-                    </form>
-                </div>
-                @endauth
-            </div>
+    {{-- Sidebar --}}
+    <aside id="sidebar" class="sidebar closed lg:!transform-none fixed top-0 left-0 z-50 h-full w-64 bg-indigo-700 shadow-xl flex flex-col overflow-y-auto">
+        {{-- Logo --}}
+        <div class="px-5 py-5 flex items-center justify-between border-b border-indigo-600">
+            <a href="{{ route('students.index') }}" class="text-white font-bold text-lg flex items-center gap-2">
+                📋 Asistencia QR
+            </a>
+            <button onclick="toggleSidebar()" class="lg:hidden text-indigo-300 hover:text-white p-1 rounded transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
-        {{-- Mobile nav --}}
-        @auth
-        <div class="md:hidden border-t border-indigo-500 px-4 py-2 flex flex-wrap gap-2">
+
+        {{-- Navigation links --}}
+        <nav class="flex-1 px-3 py-4 space-y-1">
+            {{-- Sección: Alumnos --}}
+            <p class="px-3 text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-2">Alumnos</p>
+
             <a href="{{ route('students.index') }}"
-               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('students.*') ? 'bg-indigo-700 text-white' : '' }}">
-                👨‍🎓 Alumnos
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('students.*') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                <span class="text-lg">👨‍🎓</span> Alumnos
             </a>
             <a href="{{ route('attendance.index') }}"
-               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('attendance.index') ? 'bg-indigo-700 text-white' : '' }}">
-                📊 Asistencia
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('attendance.index') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                <span class="text-lg">📊</span> Asistencia
             </a>
             <a href="{{ route('attendance.scan') }}"
-               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('attendance.scan') ? 'bg-indigo-700 text-white' : '' }}">
-                📷 Escanear
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('attendance.scan') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                <span class="text-lg">📷</span> Escanear QR
             </a>
+
+            {{-- Sección: Personal --}}
+            <p class="px-3 text-xs font-semibold text-indigo-300 uppercase tracking-wider mt-5 mb-2">Personal</p>
+
             <a href="{{ route('staff.index') }}"
-               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('staff.*') ? 'bg-indigo-700 text-white' : '' }}">
-                👔 Personal
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('staff.*') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                <span class="text-lg">👔</span> Personal
             </a>
             <a href="{{ route('staff-attendance.index') }}"
-               class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('staff-attendance.*') ? 'bg-indigo-700 text-white' : '' }}">
-                📊 Asist. Personal
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('staff-attendance.*') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                <span class="text-lg">📊</span> Asist. Personal
             </a>
+
+            {{-- Sección: Permisos --}}
+            @hasanyrole('secretaria|admin|operativo')
+            <p class="px-3 text-xs font-semibold text-indigo-300 uppercase tracking-wider mt-5 mb-2">Permisos</p>
+            @endhasanyrole
 
             @hasanyrole('secretaria|admin')
                 <a href="{{ route('permissions.solicitudes') }}"
-                   class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('permissions.solicitudes') ? 'bg-indigo-700 text-white' : '' }}">
-                    📝 Solicitudes
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('permissions.solicitudes') || request()->routeIs('permissions.create') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                    <span class="text-lg">📝</span> Solicitudes
                 </a>
             @endhasanyrole
 
             @hasrole('admin')
                 <a href="{{ route('permissions.pendientes') }}"
-                   class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('permissions.pendientes') ? 'bg-indigo-700 text-white' : '' }}">
-                    📥 Recepción
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('permissions.pendientes') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                    <span class="text-lg">📥</span> Recepción
                 </a>
             @endhasrole
 
             @hasanyrole('admin|operativo')
                 <a href="{{ route('permissions.aceptados') }}"
-                   class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-xs font-medium {{ request()->routeIs('permissions.aceptados') ? 'bg-indigo-700 text-white' : '' }}">
-                    ✅ Permisos
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('permissions.aceptados') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                    <span class="text-lg">✅</span> Permisos
                 </a>
             @endhasanyrole
+        </nav>
 
-            <form method="POST" action="{{ route('logout') }}" class="ml-auto">
+        {{-- User info & logout --}}
+        <div class="border-t border-indigo-600 px-4 py-4">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-white text-sm font-medium truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-indigo-300 text-xs capitalize">{{ auth()->user()->roles->first()?->name ?? 'usuario' }}</p>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="text-indigo-200 hover:text-white px-3 py-2 rounded-md text-xs font-medium">
-                    🚪 {{ auth()->user()->name }} (Salir)
+                <button type="submit"
+                        class="w-full flex items-center justify-center gap-2 text-indigo-200 hover:text-white hover:bg-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    🚪 Cerrar Sesión
                 </button>
             </form>
         </div>
-        @endauth
-    </nav>
+    </aside>
+    @endauth
 
-    {{-- Flash messages --}}
-    @if(session('success'))
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center justify-between">
-                <span>✅ {{ session('success') }}</span>
-                <button onclick="this.parentElement.remove()" class="text-green-600 hover:text-green-800">&times;</button>
+    {{-- Main content wrapper --}}
+    <div class="@auth lg:ml-64 @endauth">
+        {{-- Flash messages --}}
+        @if(session('success'))
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 @auth mt-16 lg:mt-4 @else mt-4 @endauth">
+                <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center justify-between">
+                    <span>✅ {{ session('success') }}</span>
+                    <button onclick="this.parentElement.remove()" class="text-green-600 hover:text-green-800">&times;</button>
+                </div>
             </div>
-        </div>
-    @endif
+        @endif
 
-    @if(session('error'))
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center justify-between">
-                <span>❌ {{ session('error') }}</span>
-                <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800">&times;</button>
+        @if(session('error'))
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 @auth mt-16 lg:mt-4 @else mt-4 @endauth">
+                <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center justify-between">
+                    <span>❌ {{ session('error') }}</span>
+                    <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800">&times;</button>
+                </div>
             </div>
-        </div>
-    @endif
+        @endif
 
-    {{-- Content --}}
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        @yield('content')
-    </main>
+        {{-- Content --}}
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 @auth pt-18 lg:pt-8 pb-8 @else py-8 @endauth">
+            @yield('content')
+        </main>
+    </div>
 
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('closed');
+            overlay.classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>
