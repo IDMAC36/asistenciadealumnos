@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DailyAttendanceExport;
 use App\Exports\StudentAttendanceHistoryExport;
 use App\Models\Attendance;
 use App\Models\PermissionRequest;
@@ -42,6 +43,17 @@ class AttendanceController extends Controller
         return view('attendance.index', compact(
             'studentList', 'date', 'totalStudents', 'presentes', 'ausentes', 'sinRegistro'
         ));
+    }
+
+    /**
+     * Exportar asistencia del día a Excel.
+     */
+    public function exportDaily(Request $request)
+    {
+        $date = $request->query('date', now()->format('Y-m-d'));
+        $filename = 'Asistencia_Alumnos_' . $date . '.xlsx';
+
+        return Excel::download(new DailyAttendanceExport($date), $filename);
     }
 
     /**

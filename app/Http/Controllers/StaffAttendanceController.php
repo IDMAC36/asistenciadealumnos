@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DailyStaffAttendanceExport;
 use App\Exports\StaffAttendanceHistoryExport;
 use App\Models\Staff;
 use App\Models\StaffAttendance;
@@ -40,6 +41,17 @@ class StaffAttendanceController extends Controller
         return view('staff-attendance.index', compact(
             'staffList', 'date', 'totalStaff', 'presentes', 'ausentes', 'sinRegistro'
         ));
+    }
+
+    /**
+     * Exportar asistencia del día del personal a Excel.
+     */
+    public function exportDaily(Request $request)
+    {
+        $date = $request->query('date', now()->format('Y-m-d'));
+        $filename = 'Asistencia_Personal_' . $date . '.xlsx';
+
+        return Excel::download(new DailyStaffAttendanceExport($date), $filename);
     }
 
     /**

@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Asistencia (acceso general autenticado)
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/attendance/export', [AttendanceController::class, 'exportDaily'])->name('attendance.export');
     Route::get('/attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan');
     Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('attendance.mark');
     Route::post('/attendance/absent', [AttendanceController::class, 'markAbsent'])->name('attendance.absent');
@@ -43,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
     // ──────────────────────────────────────────────────
     Route::resource('staff', StaffController::class);
     Route::get('/staff-attendance', [StaffAttendanceController::class, 'index'])->name('staff-attendance.index');
+    Route::get('/staff-attendance/export', [StaffAttendanceController::class, 'exportDaily'])->name('staff-attendance.export');
     Route::get('/staff-attendance/scan', [StaffAttendanceController::class, 'scan'])->name('staff-attendance.scan');
     Route::post('/staff-attendance/mark', [StaffAttendanceController::class, 'mark'])->name('staff-attendance.mark');
     Route::post('/staff-attendance/absent', [StaffAttendanceController::class, 'markAbsent'])->name('staff-attendance.absent');

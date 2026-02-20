@@ -11,6 +11,10 @@
         </p>
     </div>
     <div class="mt-4 sm:mt-0 flex gap-3">
+        <a href="{{ route('attendance.export', ['date' => $date]) }}"
+           class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow-sm transition-colors">
+            📥 Excel
+        </a>
         <a href="{{ route('attendance.scan') }}"
            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow-sm transition-colors">
             📷 Escanear QR
