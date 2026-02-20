@@ -67,6 +67,10 @@
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('attendance.history') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
                 <span class="text-lg">📅</span> Historial
             </a>
+            <a href="{{ route('attendance.monthly-report') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('attendance.monthly-report') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                <span class="text-lg">📋</span> Reporte Mensual
+            </a>
 
             {{-- Sección: Personal --}}
             <p class="px-3 text-xs font-semibold text-indigo-300 uppercase tracking-wider mt-5 mb-2">Personal</p>
@@ -82,6 +86,10 @@
             <a href="{{ route('staff-attendance.history') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('staff-attendance.history') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
                 <span class="text-lg">📅</span> Historial Personal
+            </a>
+            <a href="{{ route('staff-attendance.monthly-report') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('staff-attendance.monthly-report') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600 hover:text-white' }}">
+                <span class="text-lg">📋</span> Reporte Personal
             </a>
 
             {{-- Sección: Permisos --}}

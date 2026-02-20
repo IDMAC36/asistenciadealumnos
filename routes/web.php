@@ -38,6 +38,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/attendance/absent-all', [AttendanceController::class, 'markAllAbsent'])->name('attendance.absent.all');
     Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
     Route::get('/attendance/history/export', [AttendanceController::class, 'exportHistory'])->name('attendance.history.export');
+    Route::get('/attendance/monthly-report', [AttendanceController::class, 'monthlyReport'])->name('attendance.monthly-report');
+    Route::get('/attendance/monthly-report/export', [AttendanceController::class, 'exportMonthlyReport'])->name('attendance.monthly-report.export');
 
     // ──────────────────────────────────────────────────
     // Personal (Staff) CRUD + Asistencia
@@ -51,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/staff-attendance/absent-all', [StaffAttendanceController::class, 'markAllAbsent'])->name('staff-attendance.absent.all');
     Route::get('/staff-attendance/history', [StaffAttendanceController::class, 'history'])->name('staff-attendance.history');
     Route::get('/staff-attendance/history/export', [StaffAttendanceController::class, 'exportHistory'])->name('staff-attendance.history.export');
+    Route::get('/staff-attendance/monthly-report', [StaffAttendanceController::class, 'monthlyReport'])->name('staff-attendance.monthly-report');
+    Route::get('/staff-attendance/monthly-report/export', [StaffAttendanceController::class, 'exportMonthlyReport'])->name('staff-attendance.monthly-report.export');
 
     // ──────────────────────────────────────────────────
     // Permisos de Estudiantes

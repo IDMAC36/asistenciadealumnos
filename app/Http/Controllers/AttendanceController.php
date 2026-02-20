@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\DailyAttendanceExport;
+use App\Exports\MonthlyAttendanceReportExport;
 use App\Exports\StudentAttendanceHistoryExport;
 use App\Models\Attendance;
 use App\Models\PermissionRequest;
@@ -288,5 +289,95 @@ class AttendanceController extends Controller
             new StudentAttendanceHistoryExport($student, $month),
             $filename
         );
+    }
+
+    /**
+     * Reporte mensual general de asistencia (todos los alumnos, agrupados por grado).
+     */
+    public function monthlyReport(Request $request)
+    {
+        $month = $request->query('month', now()->format('Y-m'));
+        $startOfMonth = Carbon::parse($month . '-01');
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $today = now()->startOfDay();
+
+        // Generar array de días hábiles (lun-vie) del mes
+        $weekdays = [];
+        for ($day = $startOfMonth->copy(); $day->lte($endOfMonth); $day->addDay()) {
+            if (!in_array($day->dayOfWeek, [0, 6])) {
+                $weekdays[] = $day->copy();
+            }
+        }
+
+        // Obtener todos los alumnos agrupados por grado
+        $students = Student::orderBy('grado')->orderBy('name')->get();
+        $grouped = $students->groupBy('grado');
+
+        // Obtener todas las asistencias del mes
+        $attendances = Attendance::whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+            ->get()
+            ->groupBy('student_id')
+            ->map(fn($items) => $items->keyBy(fn($a) => Carbon::parse($a->date)->format('Y-m-d')));
+
+        // Obtener todos los permisos aceptados del mes
+        $permisos = PermissionRequest::where('estado', 'aceptado')
+            ->whereNotNull('accepted_at')
+            ->whereBetween('created_at', [$startOfMonth->startOfDay(), $endOfMonth->endOfDay()])
+            ->get()
+            ->groupBy('nombre')
+            ->map(fn($items) => $items->keyBy(fn($p) => Carbon::parse($p->created_at)->format('Y-m-d')));
+
+        // Construir datos por grado
+        $reportData = [];
+        foreach ($grouped as $grado => $studentsInGrado) {
+            $reportData[$grado] = [];
+            foreach ($studentsInGrado as $student) {
+                $studentDays = [];
+                $studentAttendances = $attendances->get($student->id, collect());
+                $studentPermisos = $permisos->get($student->name, collect());
+
+                foreach ($weekdays as $day) {
+                    $dateStr = $day->format('Y-m-d');
+                    $isFuture = $day->gt($today);
+
+                    if ($isFuture) {
+                        $status = null;
+                    } elseif ($studentPermisos && $studentPermisos->has($dateStr)) {
+                        $status = 'permiso';
+                    } elseif ($studentAttendances && $studentAttendances->has($dateStr)) {
+                        $status = $studentAttendances->get($dateStr)->status;
+                    } else {
+                        $status = 'sin_registro';
+                    }
+
+                    $studentDays[$dateStr] = $status;
+                }
+
+                $reportData[$grado][] = (object) [
+                    'student' => $student,
+                    'days' => $studentDays,
+                ];
+            }
+        }
+
+        $prevMonth = $startOfMonth->copy()->subMonth()->format('Y-m');
+        $nextMonth = $startOfMonth->copy()->addMonth()->format('Y-m');
+        $monthLabel = $startOfMonth->locale('es')->isoFormat('MMMM YYYY');
+
+        return view('attendance.monthly-report', compact(
+            'month', 'weekdays', 'reportData', 'prevMonth', 'nextMonth', 'monthLabel'
+        ));
+    }
+
+    /**
+     * Exportar reporte mensual a Excel.
+     */
+    public function exportMonthlyReport(Request $request)
+    {
+        $month = $request->query('month', now()->format('Y-m'));
+        $monthLabel = Carbon::parse($month . '-01')->locale('es')->isoFormat('MMMM_YYYY');
+        $filename = 'Reporte_Mensual_Alumnos_' . $monthLabel . '.xlsx';
+
+        return Excel::download(new MonthlyAttendanceReportExport($month), $filename);
     }
 }

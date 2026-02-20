@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\DailyStaffAttendanceExport;
+use App\Exports\MonthlyStaffAttendanceReportExport;
 use App\Exports\StaffAttendanceHistoryExport;
 use App\Models\Staff;
 use App\Models\StaffAttendance;
@@ -263,5 +264,80 @@ class StaffAttendanceController extends Controller
             new StaffAttendanceHistoryExport($staff, $month),
             $filename
         );
+    }
+
+    /**
+     * Reporte mensual general de asistencia del personal.
+     */
+    public function monthlyReport(Request $request)
+    {
+        $month = $request->query('month', now()->format('Y-m'));
+        $startOfMonth = Carbon::parse($month . '-01');
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $today = now()->startOfDay();
+
+        $weekdays = [];
+        for ($day = $startOfMonth->copy(); $day->lte($endOfMonth); $day->addDay()) {
+            if (!in_array($day->dayOfWeek, [0, 6])) {
+                $weekdays[] = $day->copy();
+            }
+        }
+
+        $staffMembers = Staff::orderBy('role')->orderBy('name')->get();
+        $grouped = $staffMembers->groupBy('role');
+
+        $attendances = StaffAttendance::whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+            ->get()
+            ->groupBy('staff_id')
+            ->map(fn($items) => $items->keyBy(fn($a) => Carbon::parse($a->date)->format('Y-m-d')));
+
+        $reportData = [];
+        foreach ($grouped as $role => $membersInRole) {
+            $reportData[$role] = [];
+            foreach ($membersInRole as $member) {
+                $memberDays = [];
+                $memberAttendances = $attendances->get($member->id, collect());
+
+                foreach ($weekdays as $day) {
+                    $dateStr = $day->format('Y-m-d');
+                    $isFuture = $day->gt($today);
+
+                    if ($isFuture) {
+                        $status = null;
+                    } elseif ($memberAttendances && $memberAttendances->has($dateStr)) {
+                        $status = $memberAttendances->get($dateStr)->status;
+                    } else {
+                        $status = 'sin_registro';
+                    }
+
+                    $memberDays[$dateStr] = $status;
+                }
+
+                $reportData[$role][] = (object) [
+                    'staff' => $member,
+                    'days' => $memberDays,
+                ];
+            }
+        }
+
+        $prevMonth = $startOfMonth->copy()->subMonth()->format('Y-m');
+        $nextMonth = $startOfMonth->copy()->addMonth()->format('Y-m');
+        $monthLabel = $startOfMonth->locale('es')->isoFormat('MMMM YYYY');
+
+        return view('staff-attendance.monthly-report', compact(
+            'month', 'weekdays', 'reportData', 'prevMonth', 'nextMonth', 'monthLabel'
+        ));
+    }
+
+    /**
+     * Exportar reporte mensual del personal a Excel.
+     */
+    public function exportMonthlyReport(Request $request)
+    {
+        $month = $request->query('month', now()->format('Y-m'));
+        $monthLabel = Carbon::parse($month . '-01')->locale('es')->isoFormat('MMMM_YYYY');
+        $filename = 'Reporte_Mensual_Personal_' . $monthLabel . '.xlsx';
+
+        return Excel::download(new MonthlyStaffAttendanceReportExport($month), $filename);
     }
 }
