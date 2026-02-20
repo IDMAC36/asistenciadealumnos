@@ -59,6 +59,21 @@
                 @enderror
             </div>
 
+            <div>
+                <label for="plan" class="block text-sm font-medium text-gray-700 mb-1">Plan</label>
+                <select name="plan"
+                        id="plan"
+                        required
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow @error('plan') border-red-500 @enderror">
+                    <option value="" disabled {{ old('plan') ? '' : 'selected' }}>-- Seleccionar plan --</option>
+                    <option value="plan_diario" {{ old('plan') === 'plan_diario' ? 'selected' : '' }}>Plan Diario</option>
+                    <option value="plan_fin_de_semana" {{ old('plan') === 'plan_fin_de_semana' ? 'selected' : '' }}>Plan Fin de Semana</option>
+                </select>
+                @error('plan')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
             <div class="flex items-center gap-3 pt-2">
                 <button type="submit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors">

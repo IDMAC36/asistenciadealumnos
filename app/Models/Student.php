@@ -14,6 +14,7 @@ class Student extends Model
         'name',
         'codigo_personal',
         'grado',
+        'plan',
         'qr_code',
     ];
 

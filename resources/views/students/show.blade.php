@@ -14,7 +14,7 @@
         {{-- Header --}}
         <div class="bg-indigo-600 px-6 py-5">
             <h1 class="text-xl font-bold text-white">{{ $student->name }}</h1>
-            <p class="text-indigo-200 text-sm mt-1">{{ $student->codigo_personal }} · {{ $student->grado }}</p>
+            <p class="text-indigo-200 text-sm mt-1">{{ $student->codigo_personal }} · {{ $student->grado }} · {{ $student->plan === 'plan_diario' ? 'Plan Diario' : 'Plan Fin de Semana' }}</p>
         </div>
 
         {{-- QR Code --}}
@@ -45,6 +45,16 @@
                 <div>
                     <dt class="text-xs text-gray-500 uppercase tracking-wider">Grado</dt>
                     <dd class="text-sm font-medium text-gray-900 mt-1">{{ $student->grado }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-gray-500 uppercase tracking-wider">Plan</dt>
+                    <dd class="text-sm font-medium text-gray-900 mt-1">
+                        @if($student->plan === 'plan_diario')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">📅 Plan Diario</span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">🗓️ Plan Fin de Semana</span>
+                        @endif
+                    </dd>
                 </div>
                 <div>
                     <dt class="text-xs text-gray-500 uppercase tracking-wider">Registrado el</dt>

@@ -34,6 +34,7 @@
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Código Personal</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Grado</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Plan</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha Registro</th>
                         <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
                     </tr>
@@ -47,6 +48,13 @@
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $student->codigo_personal }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $student->grado }}</td>
+                            <td class="px-6 py-4">
+                                @if($student->plan === 'plan_diario')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Diario</span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Fin de Semana</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $student->created_at->format('d/m/Y') }}</td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">

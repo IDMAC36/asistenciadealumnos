@@ -35,12 +35,14 @@ class StudentController extends Controller
             'name'             => 'required|string|max:255',
             'codigo_personal'  => 'required|string|max:100',
             'grado'            => 'required|string|max:100',
+            'plan'             => 'required|in:plan_diario,plan_fin_de_semana',
         ]);
 
         $student = Student::create([
             'name'             => $request->name,
             'codigo_personal'  => $request->codigo_personal,
             'grado'            => $request->grado,
+            'plan'             => $request->plan,
             'qr_code'          => (string) Str::uuid(),
         ]);
 
@@ -74,12 +76,14 @@ class StudentController extends Controller
             'name'             => 'required|string|max:255',
             'codigo_personal'  => 'required|string|max:100',
             'grado'            => 'required|string|max:100',
+            'plan'             => 'required|in:plan_diario,plan_fin_de_semana',
         ]);
 
         $student->update([
             'name'             => $request->name,
             'codigo_personal'  => $request->codigo_personal,
             'grado'            => $request->grado,
+            'plan'             => $request->plan,
         ]);
 
         return redirect()->route('students.show', $student)
